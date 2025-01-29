@@ -1,19 +1,26 @@
 #include "Arduino.h"
 #include "DominoRobot.h"
-#include "Args.h"
 #include <Servo.h>
 #include <SparkFun_TB6612.h>
 #include <OneButton.h>
 
 
 
-DominoRobot::DominoRobot(struct args& args) {
-    _args = args;
-    _leftMotor = Motor(_args.AIN1, _args.AIN2, _args.PWMA, _args.OFFSET_A, _args.STBY);
-    _rightMotor = Motor(_args.BIN1, _args.BIN2, _args.PWMB, _args.OFFSET_B, _args.STBY);
+DominoRobot::DominoRobot() {
+    _leftMotor = Motor(_AIN1, _AIN2, _PWMA, _OFFSET_A, _STBY);
+    _rightMotor = Motor(_BIN1, _BIN2, _PWMB, _OFFSET_B, _STBY);
+    _stopButton = OneButton(_BUTTON_PIN, false, false);
 }
 
+
 void DominoRobot::begin() {
-fleklsk 
-lf;
+    digitalWrite(_STBY, HIGH);
+    _servo.attach(_SERVO_PIN);
+    _servo.write(_SERVO_LEFT);
+
+    _stopButton.setPressMs(200);
+    _stopButton.attachLongPressStart([]() {
+        stopButtonPressed = true;
+    });
+    delay(800);
 }
