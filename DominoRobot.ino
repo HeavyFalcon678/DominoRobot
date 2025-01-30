@@ -28,15 +28,21 @@
 #include <OneButton.h>
 
 
-
-
 DominoRobot robot;
 
 
 void setup() {
   robot.begin();
+  Serial.begin(9600);
 }
 
 void loop() {
+  if(!robot.followLine()) {
+    Serial.println("Sensor is not connected, driving straight");  
+    // robot.drive()
+  }
 
+  robot.loop();
+
+  
 }
