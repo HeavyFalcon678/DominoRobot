@@ -50,9 +50,9 @@ int DominoRobot::readSensors() {
 bool DominoRobot::checkSensorsConnected(){
     _leftSensorValue = readLeftSensor();
     _rightSensorValue = readRightSensor();
-    if(_leftSensorValue > 100 || _leftSensorValue < 1000) {
+    if(_leftSensorValue > 100 && _leftSensorValue < 1000) {
         return false;
-    } else if (_rightSensorValue > 100 || _rightSensorValue < 1000) {
+    } else if (_rightSensorValue > 100 && _rightSensorValue < 1000) {
         return false;
     } else {
     return true;
@@ -73,12 +73,31 @@ bool DominoRobot::followLine() {
 
     _leftMotorSpeed = constrain(_leftMotorSpeed, 0, _TOP_SPEED);
     _rightMotorSpeed = constrain(_rightMotorSpeed, 0, _TOP_SPEED);
-
-    _leftMotor.drive(_leftMotorSpeed);
-    _rightMotor.drive(_rightMotorSpeed);
+    Serial.print(_leftMotorSpeed);
+    Serial.println(_rightMotorSpeed);
+    driveInfinity(_leftMotorSpeed, _rightMotorSpeed);
 
     _combinedMotorSpeed = _leftMotorSpeed + _rightMotorSpeed;
     _distanceSinceLastDrop += _combinedMotorSpeed;
     return true;
 }
 
+void DominoRobot::driveTime(long time, int leftSpeed, int rightSpeed) {
+    _leftMotorSpeed = leftSpeed * .01 * _TOP_SPEED;
+    _rightMotorSpeed = rightSpeed * .01 * _TOP_SPEED;
+    _currentTime = millis();
+    driveInfinity(_leftMotorSpeed, _rightMotorSpeed);
+    while(millis() < _currentTime + time);
+    stop();
+}
+
+
+void DominoRobot::driveInfinity(int leftSpeed, int rightSpeed) {
+    _leftMotor.drive(leftSpeed);
+    _rightMotor.drive(rightSpeed);
+}
+
+void DominoRobot::stop() {
+    _leftMotor.brake();
+    _rightMotor.brake();
+}

@@ -39,7 +39,7 @@ void setup() {
 void loop() {
   if(!robot.followLine()) {
     Serial.println("Sensor is not connected, driving straight");  
-    // robot.drive()
+    robot.driveTime(500, 100, 100);
   }
 
   robot.loop();

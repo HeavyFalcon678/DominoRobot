@@ -18,12 +18,18 @@ public:
   int readSensors();
   bool followLine();
   bool checkSensorsConnected();
+  void driveTime(long time, int leftSpeed, int rightSpeed);
+  void driveInfinity(int leftSpeed, int rightSpeed);
+  void stop();
   
 
   const int FORWARD = 1;
   const int LEFT = 2;
-  const int RIGHT = 3;
+  const int RIGTH = 3;
   const int BACKWARD = 4;
+  const int CM = 5;
+  const int IN = 6;
+
   bool dropDominoes = true;
 
   static void _stopButtonCallback();
@@ -73,7 +79,7 @@ private:
   unsigned long _distanceSinceLastDrop = _DISPENSE_DISTANCE;
   bool _dominoDropped = false;
 
-
+  unsigned long _currentTime;
 
   Servo _servo;
   Motor _leftMotor = Motor(_AIN1, _AIN2, _PWMA, _OFFSET_A, _STBY);
