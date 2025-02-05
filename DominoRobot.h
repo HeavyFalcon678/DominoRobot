@@ -21,10 +21,11 @@ public:
     void driveTime(long time, int leftSpeed, int rightSpeed, bool layDominoes);
     void driveInfinity(int leftSpeed, int rightSpeed);
     void stop();
-    void dropDominoes(int dominoes);
+    bool dropDomino(bool force = false);
     void enableSerial(unsigned long baud);
     bool readSwitch();
     void grabDomino();
+    void releaseDomino();
 
     
 
@@ -86,6 +87,7 @@ private:
     bool _serialEnabled = false;
 
     bool _sensorsConnected = false;
+    bool _didDrop = false;
 
     Servo _servo;
     Motor _leftMotor = Motor(_AIN1, _AIN2, _PWMA, _OFFSET_A, _STBY);

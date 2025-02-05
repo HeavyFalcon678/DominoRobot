@@ -37,10 +37,17 @@ void setup() {
 }
 
 void loop() {
-    // if(!robot.followLine(true)) {
-    //     robot.driveTime(500, 100, 100, true);
+    if(!robot.followLine(true)) {
+        robot.driveTime(500, 100, 100, true);
 
-    // }
+    }
     robot.loop();
-    robot.readSwitch();
+
+
+    if(!robot.readSwitch()) {
+        robot.dropDomino();
+    } else {
+        robot.stop();
+        while(true);
+    }
 }

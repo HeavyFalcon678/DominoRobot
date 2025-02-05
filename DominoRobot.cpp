@@ -121,13 +121,26 @@ void DominoRobot::driveInfinity(int leftSpeed, int rightSpeed) {
 }
 
 void DominoRobot::stop() {
-    _leftMotor.brake();
-    _rightMotor.brake();
+    if(!_didDrop) {
+        releaseDomino();
+    }
+    if(_distanceSinceLastDrop >= _DISPENSE_DISTANCE) {
+        _leftMotor.brake();
+        _rightMotor.brake();
+    }
+
 }
 
 
-void DominoRobot::dropDominoes(int dominoes) {
-    
+bool DominoRobot::dropDomino(bool force = false) {
+    if(((_distanceSinceLastDrop >= _DISPENSE_DISTANCE) && !_didDrop) || force && !_didDrop) {
+        releaseDomino();
+        _dominoDropped = true;
+    } else if(((_distanceSinceLastDrop >= 0.7 * _DISPENSE_DISTANCE) && _didDrop) || force && _didDrop) {
+        grabDomino();
+        _dominoDropped = false;
+    }
+    return _dominoDropped;
 }
 
 
@@ -137,7 +150,14 @@ void DominoRobot::enableSerial(unsigned long baud) {
 }
 
 void DominoRobot::grabDomino() {
+    _servo.write(_SERVO_LEFT);
+    _didDrop = false;
+}
 
+void DominoRobot::releaseDomino() {
+    _servo.write(_SERVO_RIGHT);
+    _distanceSinceLastDrop = 0;
+    _didDrop = true;
 }
 
 bool DominoRobot::readSwitch() {
