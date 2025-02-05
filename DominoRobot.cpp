@@ -8,14 +8,18 @@ DominoRobot* DominoRobot::_instance = nullptr;
 
 DominoRobot::DominoRobot() {
     _instance = this;
+    pinMode(1, OUTPUT);
+    pinMode(0, OUTPUT);
 }
 
 
-static void DominoRobot::_stopButtonCallback() {
+void DominoRobot::_stopButtonCallback() {
     if (_instance) {
         _instance->_stopButtonPressed = true;
     }
 }
+
+
 
 void DominoRobot::begin() {
     digitalWrite(_STBY, HIGH);
@@ -24,6 +28,10 @@ void DominoRobot::begin() {
 
     _stopButton.setPressMs(200);
     _stopButton.attachLongPressStart(DominoRobot::_stopButtonCallback);
+    _stopButton.attachLongPressStop([]() {
+    if (_instance) {
+        _instance->_stopButtonPressed = false;
+    }});
     delay(800);
 }
 
@@ -47,19 +55,31 @@ int DominoRobot::readSensors() {
     return _leftSensorValue - _rightSensorValue;
 }
 
-bool DominoRobot::checkSensorsConnected(){
+bool DominoRobot::checkSensorsConnected() {
     _leftSensorValue = readLeftSensor();
     _rightSensorValue = readRightSensor();
+    _sensorsConnected = true;
     if(_leftSensorValue > 100 && _leftSensorValue < 1000) {
-        return false;
-    } else if (_rightSensorValue > 100 && _rightSensorValue < 1000) {
-        return false;
+        if(!_serialEnabled) digitalWrite(0, HIGH);
+        _sensorsConnected = false;
+    }
+    if (_rightSensorValue > 100 && _rightSensorValue < 1000) {
+        if(!_serialEnabled) digitalWrite(1, HIGH);
+        _sensorsConnected = false;
+    }
+    
+    if(_sensorsConnected) {
+        if(!_serialEnabled) {
+            digitalWrite(0, LOW);
+            digitalWrite(1, LOW);
+        }
+        return true;
     } else {
-    return true;
+        return false;
     }
 }
 
-bool DominoRobot::followLine() {
+bool DominoRobot::followLine(bool layDominoes) {
     if(!checkSensorsConnected()){
         return false;
     }
@@ -73,21 +93,24 @@ bool DominoRobot::followLine() {
 
     _leftMotorSpeed = constrain(_leftMotorSpeed, 0, _TOP_SPEED);
     _rightMotorSpeed = constrain(_rightMotorSpeed, 0, _TOP_SPEED);
-    Serial.print(_leftMotorSpeed);
-    Serial.println(_rightMotorSpeed);
     driveInfinity(_leftMotorSpeed, _rightMotorSpeed);
 
     _combinedMotorSpeed = _leftMotorSpeed + _rightMotorSpeed;
     _distanceSinceLastDrop += _combinedMotorSpeed;
+    if(layDominoes) {
+        // lay dominoes
+    }
     return true;
 }
 
-void DominoRobot::driveTime(long time, int leftSpeed, int rightSpeed) {
+void DominoRobot::driveTime(long time, int leftSpeed, int rightSpeed, bool layDominoes) {
     _leftMotorSpeed = leftSpeed * .01 * _TOP_SPEED;
     _rightMotorSpeed = rightSpeed * .01 * _TOP_SPEED;
     _currentTime = millis();
     driveInfinity(_leftMotorSpeed, _rightMotorSpeed);
-    while(millis() < _currentTime + time);
+    while(millis() < _currentTime + time){
+
+    }
     stop();
 }
 
@@ -100,4 +123,24 @@ void DominoRobot::driveInfinity(int leftSpeed, int rightSpeed) {
 void DominoRobot::stop() {
     _leftMotor.brake();
     _rightMotor.brake();
+}
+
+
+void DominoRobot::dropDominoes(int dominoes) {
+    
+}
+
+
+void DominoRobot::enableSerial(unsigned long baud) {
+    _serialEnabled = true;
+    Serial.begin(115200);
+}
+
+void DominoRobot::grabDomino() {
+
+}
+
+bool DominoRobot::readSwitch() {
+    if(_serialEnabled) Serial.println(_stopButtonPressed);
+    return _stopButtonPressed;
 }

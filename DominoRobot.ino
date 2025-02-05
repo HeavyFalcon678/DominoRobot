@@ -32,17 +32,15 @@ DominoRobot robot;
 
 
 void setup() {
-  robot.begin();
-  Serial.begin(9600);
+    robot.begin();
+    robot.enableSerial(115200);
 }
 
 void loop() {
-  if(!robot.followLine()) {
-    Serial.println("Sensor is not connected, driving straight");  
-    robot.driveTime(500, 100, 100);
-  }
+    // if(!robot.followLine(true)) {
+    //     robot.driveTime(500, 100, 100, true);
 
-  robot.loop();
-
-  
+    // }
+    robot.loop();
+    robot.readSwitch();
 }
